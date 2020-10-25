@@ -4,74 +4,134 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace WF_Caisse
 {
-    class Caisse : Control
+    class Caisse
     {
-        const int FERMEE = 0;
-        const int OUVERT = 1;
-        
-        int Etat;
+        //Constantes
+        const int DEFAULT_SIZE = 20;
+        const int DEFAULT_TIME_TREATMENT = 3;
+        public const int CLOSED = 0;
+        public const int OPENED = 1;
+
+
+        //Variables
+        public int State;
         int Number;
         int Size;
-
-        List<Client> AttenteClient;
-        Point Position
+        Client actualClient;
+        Stopwatch TempsTraitement;
+        Timer CheckTimer;
+        
+        public List<Client> AttenteClient;
+        public PointF Position
         {
             get
             {
-                return new Point((Number * Size * 2), Properties.Settings.Default.Heigth-Size);
+                return new PointF((Number * Size * 2), Properties.Settings.Default.SizeMagasin.Height - Size);
             }
         }
-        Stopwatch TempsTraitement;
 
+        /// <summary>
+        /// Ctor of Caisse 
+        /// </summary>
+        /// <param name="number"></param> The number of the caisse
         public Caisse(int number)
         {
             Number = number;
-            Etat = FERMEE;
-            Size = 20;
+            State = CLOSED;
+            Size = DEFAULT_SIZE;
+            AttenteClient = new List<Client>();
+            actualClient = null;
+            TempsTraitement = new Stopwatch();
+
+            //Timer Check
+            CheckTimer = new Timer();
+            CheckTimer.Interval = 100;
+            CheckTimer.Enabled = true;
+            CheckTimer.Tick += new EventHandler(Check);
         }
 
-        public void TraiterClient()
+        /// <summary>
+        /// Check the time of the actual process or process a new client
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Check(object sender, EventArgs e)
         {
-
+            if (TempsTraitement.IsRunning)
+            {
+                if(TempsTraitement.Elapsed.TotalSeconds >= DEFAULT_TIME_TREATMENT)
+                {
+                    TempsTraitement.Reset();
+                    //TODO
+                    //Détruit de client
+                }
+            }
+            else
+            {
+                ProcessClient();
+            }
         }
 
-        public void Ouvrir()
+        /// <summary>
+        /// Process a new Client if he's waiting
+        /// </summary>
+        public void ProcessClient()
+        { 
+            if(AttenteClient.Count != 0)
+            {
+                actualClient = AttenteClient[0];
+                AttenteClient.RemoveAt(0);
+                TempsTraitement.Start();
+            } 
+        }
+
+        /// <summary>
+        /// Change the state to Open
+        /// </summary>
+        public void Open()
         {
-            Etat = OUVERT;
-        }
-        public void Fermer()
-        {
-            Etat = FERMEE;
+            State = OPENED;
         }
 
+        /// <summary>
+        /// Change the state to Close
+        /// </summary>
+        public void Close()
+        {
+            State = CLOSED;
+        }
+
+        /// <summary>
+        /// Display the Caisse
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         public void Paint(object sender, PaintEventArgs e)
         {
+            //Set the color in fonction of his state
             Color color = Color.Black;
-            switch (Etat)
+            switch (State)
             {
-                case FERMEE:
+                case CLOSED:
                     color = Color.Red;
                     break;
-                case OUVERT:
+                case OPENED:
                     color = Color.Green;
                     break;
                 default:
                     break;
             }
-            Rectangle rectangle = new Rectangle(Position, new Size(Size, Size)); //like in your code sample
+            RectangleF rectangle = new RectangleF(Position, new Size(Size, Size)); //like in your code sample
 
             using (Brush brush = new SolidBrush(color))
             {
                 e.Graphics.FillRectangle(brush, rectangle);
             }
         }
-
-
     }
 }

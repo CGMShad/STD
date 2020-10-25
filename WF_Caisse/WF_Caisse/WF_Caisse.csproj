@@ -48,9 +48,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Caisse.cs">
-      <SubType>Component</SubType>
-    </Compile>
+    <Compile Include="Caisse.cs" />
     <Compile Include="Client.cs" />
     <Compile Include="frmMain.cs">
       <SubType>Form</SubType>

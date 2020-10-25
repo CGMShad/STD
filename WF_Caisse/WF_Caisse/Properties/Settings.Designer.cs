@@ -25,25 +25,13 @@ namespace WF_Caisse.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("800")]
-        public int Width {
+        [global::System.Configuration.DefaultSettingValueAttribute("1050, 500")]
+        public global::System.Drawing.Size SizeMagasin {
             get {
-                return ((int)(this["Width"]));
+                return ((global::System.Drawing.Size)(this["SizeMagasin"]));
             }
             set {
-                this["Width"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("450")]
-        public int Heigth {
-            get {
-                return ((int)(this["Heigth"]));
-            }
-            set {
-                this["Heigth"] = value;
+                this["SizeMagasin"] = value;
             }
         }
     }

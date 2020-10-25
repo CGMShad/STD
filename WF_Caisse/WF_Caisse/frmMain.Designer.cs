@@ -33,18 +33,20 @@
             // 
             // magasin1
             // 
-            this.magasin1.Location = new System.Drawing.Point(2, 3);
+            this.magasin1.Location = new System.Drawing.Point(4, 1);
+            this.magasin1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.magasin1.Name = "magasin1";
-            this.magasin1.Size = new System.Drawing.Size(800, 450);
+            this.magasin1.Size = new System.Drawing.Size(1063, 623);
             this.magasin1.TabIndex = 0;
             this.magasin1.Text = "magasin1";
             // 
             // frmMain
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 450);
+            this.ClientSize = new System.Drawing.Size(1070, 618);
             this.Controls.Add(this.magasin1);
+            this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.Name = "frmMain";
             this.Text = "Magasin";
             this.ResumeLayout(false);

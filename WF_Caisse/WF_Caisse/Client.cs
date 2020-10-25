@@ -1,27 +1,30 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 
 namespace WF_Caisse
 {
     class Client
     {
-        const int COURSE = 0;
-        const int ATTENTE = 1;
-        const int EN_CAISSE = 2;
-        const int FINI = 3;
+        //Constantes
+        const int MARGIN = 20;
+        const int SIZE = 20;
+        const int SHOPPING = 0;
+        const int SPEED_FACTOR = 5;
+        const int WAITING = 1;
+        const int CHECKOUT = 2;
+        const int OUT = 3;
 
-        int Etat;
-        Timer Course;
+        int State;
+        Timer Shopping;
+        Timer Check;
         Stopwatch sw;
-        Caisse CaisseAttribue;
+        //Caisse CaisseAttribue;
         PointF startLocation;
         PointF speed;
         Random rdm;
+        PointF TargetPosition;
         public PointF Position
         {
             get
@@ -34,63 +37,117 @@ namespace WF_Caisse
             private set { }
         }
 
+        /// <summary>
+        /// Ctor of Client
+        /// </summary>
+        /// <param name="r"></param>
         public Client(Random r)
         {
             //StopWatch
             sw = new Stopwatch();
             sw.Start();
 
+            //Unique random given by the magasin
             rdm = r;
 
             //Controle Client
-            speed = new PointF(30, 30);
             startLocation = new PointF(700, 200);
 
-            //Timer Course
-            Course = new Timer();
-            Course.Interval = rdm.Next(10,20) * 1000;
-            Course.Enabled = true;
-            Course.Tick += new EventHandler(Finish);
-            Etat = COURSE;
+            //Timer Shopping
+            Shopping = new Timer();
+            Shopping.Interval = rdm.Next(10, 20) * 1000;
+            Shopping.Enabled = true;
+            Shopping.Tick += new EventHandler(CourseFinished);
+            State = SHOPPING;
 
-            Aller(new PointF(0, 0));
+            //Timer Check
+            Check = new Timer();
+            Check.Interval = 100;
+            Check.Enabled = true;
+            Check.Tick += new EventHandler(CheckPath);
+
+            GoTo(new PointF(rdm.Next(Properties.Settings.Default.SizeMagasin.Width), rdm.Next(Properties.Settings.Default.SizeMagasin.Height)));
+        }
+        public Client() : this(new Random()) { }
+
+        /// <summary>
+        /// Check if the Client has reach the objectiv give him a new one in fonction of his state 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void CheckPath(object sender, EventArgs e)
+        {
+            //If the client has reach the objectiv
+            if ((Position.X < TargetPosition.X + MARGIN && Position.X > TargetPosition.X - MARGIN) && (Position.Y < TargetPosition.Y + MARGIN && Position.Y > TargetPosition.Y - MARGIN))
+            {
+                // Go to a new point in the magasin
+                if (State == SHOPPING)
+                {
+                    GoTo(new PointF(rdm.Next(Properties.Settings.Default.SizeMagasin.Width), rdm.Next(Properties.Settings.Default.SizeMagasin.Height)));
+                }
+                // Go to the Caisse attibuted 
+                else if (State == WAITING)
+                {
+                    State = CHECKOUT;
+                    GoTo(new PointF(0, Properties.Settings.Default.SizeMagasin.Height));
+                }
+            }
         }
 
-        public Client() : this( new Random()) { }
-
-        private void Finish(object sender, EventArgs e)
+        /// <summary>
+        /// When the Client finished his shopping
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void CourseFinished(object sender, EventArgs e)
         {
-            Etat = ATTENTE;
-            Course.Stop();
+            State = WAITING;
+            Shopping.Stop();
+            //TO DO 
+            //Call Event to have a Caisse
+            // Goto Caisse
         }
 
-        public void Aller(PointF objectif)
+        /// <summary>
+        /// Manage the client's move 
+        /// </summary>
+        /// <param name="objectif"></param>
+        public void GoTo(PointF objectif)
         {
-            int facteurVitesse = 5;
             startLocation = Position;
+            TargetPosition = objectif;
+            //Change the speed to in direction of the objectiv 
             speed = new PointF(
-                (objectif.X - startLocation.X)/facteurVitesse,
-                (objectif.Y - startLocation.Y)/facteurVitesse);
+                (TargetPosition.X - startLocation.X) / SPEED_FACTOR,
+                (TargetPosition.Y - startLocation.Y) / SPEED_FACTOR);
             sw.Restart();
         }
 
+        /// <summary>
+        /// Display the Client
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         public void Paint(object sender, PaintEventArgs e)
         {
-            Color color = Color.Black;
-            switch (Etat)
+            //Set the color in fonction of his state
+            Color color;
+            switch (State)
             {
-                case COURSE:
+                case SHOPPING:
                     color = Color.Blue;
                     break;
-                case ATTENTE:
-                case EN_CAISSE:
+                case WAITING:
+                case CHECKOUT:
                     color = Color.Red;
                     break;
                 default:
+                    color = Color.Black;
                     break;
             }
-            RectangleF ellipseBounds = new RectangleF(Position,new SizeF(20,20)); //like in your code sample
-            
+
+            RectangleF ellipseBounds = new RectangleF(Position, new SizeF(SIZE, SIZE)); 
+
             using (Brush brush = new SolidBrush(color))
             {
                 e.Graphics.FillEllipse(brush, ellipseBounds);
