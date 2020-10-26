@@ -15,7 +15,6 @@ namespace WF_Caisse
         public frmMain()
         {
             InitializeComponent();
-            Magasin m = new Magasin();
         }
     }
 }

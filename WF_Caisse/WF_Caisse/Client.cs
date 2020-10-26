@@ -1,4 +1,11 @@
-﻿using System;
+﻿/* 
+ * File : Client
+ * Author : Clément Christensen
+ * Date : 26.10.2020
+ * Version : 1.0
+ * Description : the Class Client control de movement of the client
+ */
+using System;
 using System.Diagnostics;
 using System.Drawing;
 using System.Windows.Forms;
@@ -25,6 +32,8 @@ namespace WF_Caisse
         PointF speed;
         Random rdm;
         PointF TargetPosition;
+        public Caisse CaisseAttributed;
+        public event EventHandler CaisseAttribution;
         public PointF Position
         {
             get
@@ -101,11 +110,22 @@ namespace WF_Caisse
         /// <param name="e"></param>
         private void CourseFinished(object sender, EventArgs e)
         {
+            CaisseAttributed = null;
             State = WAITING;
             Shopping.Stop();
-            //TO DO 
-            //Call Event to have a Caisse
-            // Goto Caisse
+            //Call the event
+            OnCaisseAttribution(EventArgs.Empty);
+            //If the event goes wrong, then don't die
+            if(CaisseAttributed == null)
+            {
+                Console.WriteLine("Pas de caisse");
+                GoTo(new PointF(100, 100));
+            }
+            else
+            {
+                 GoTo(CaisseAttributed.Position);
+            }
+           
         }
 
         /// <summary>
@@ -152,6 +172,15 @@ namespace WF_Caisse
             {
                 e.Graphics.FillEllipse(brush, ellipseBounds);
             }
+        }
+
+        /// <summary>
+        /// Invoke the event to got a caisse
+        /// </summary>
+        /// <param name="e"></param>
+        protected virtual void OnCaisseAttribution(EventArgs e)
+        {
+            CaisseAttribution?.Invoke(this, e);
         }
 
     }

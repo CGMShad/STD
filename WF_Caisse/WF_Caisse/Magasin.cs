@@ -1,4 +1,11 @@
-﻿using System;
+﻿/* 
+ * File : Magasin
+ * Author : Clément Christensen
+ * Date : 26.10.2020
+ * Version : 1.0
+ * Description : the Class Magasin control the functionning of a magasin with customers (clients) and checkouts (caisse)
+ */
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
@@ -27,6 +34,8 @@ namespace WF_Caisse
         List<Client> Clients;
         Random rdm;
 
+        int counterControle;
+
         /// <summary>
         /// Ctor of magasin
         /// </summary>
@@ -36,22 +45,23 @@ namespace WF_Caisse
             ClosedCaisses = new List<Caisse>();
             OpenedCaisses = new List<Caisse>();
             Clients = new List<Client> { new Client(rdm) };
+            counterControle = 0;
 
             //Timer Refresh
             timerRefresh = new Timer();
-            timerRefresh.Interval = 1000 / 60;
+            timerRefresh.Interval = 1000 / 60; //60 fps
             timerRefresh.Enabled = true;
             timerRefresh.Tick += new EventHandler(OnTick);
 
             //Timer Spawn Client
             timerSpawnClient = new Timer();
-            timerSpawnClient.Interval = 1000;
+            timerSpawnClient.Interval = 1000; // each second
             timerSpawnClient.Enabled = true;
             timerSpawnClient.Tick += new EventHandler(CreateClient);
 
             //Timer Controle Caisse
             timerControl = new Timer();
-            timerControl.Interval = 1000 / 2;
+            timerControl.Interval = 100; // 10 times per second
             timerControl.Enabled = true;
             timerControl.Tick += new EventHandler(Controle);
 
@@ -85,12 +95,19 @@ namespace WF_Caisse
             //Close the last caisse if it don't have clients
             if(OpenedCaisses[OpenedCaisses.Count-1].AttenteClient.Count == 0 && OpenedCaisses.Count > 1)
             {
-                CloseCaisse();
+                //If the caisse is empty 10 times, close it.
+                counterControle++;
+                if(counterControle == 10)
+                {
+                    CloseCaisse();
+                    counterControle = 0;
+                }
             }
             // Open the next caisse if all opened caisses had too much Clients
             else if (OpenedCaisses[OpenedCaisses.Count-1].AttenteClient.Count >= MAX_CLIENTS_PER_CAISSE)
             {
                 OpenCaisse();
+                counterControle = 0;
             }
         }
 
@@ -103,6 +120,7 @@ namespace WF_Caisse
         {
             Client c = new Client(rdm);
             Paint += c.Paint;
+            c.CaisseAttribution += AttributionCaisse;
             Clients.Add(c);
         }
 
@@ -150,6 +168,27 @@ namespace WF_Caisse
             base.OnPaint(p);
             
             e.Graphics.DrawImage(bmp, new Point(0, 0));
+        }
+
+        /// <summary>
+        /// Give a Caisse to a Client
+        /// </summary>
+        /// <param name="client"></param>
+        /// <param name="e"></param>
+        protected void AttributionCaisse(object client, EventArgs e)
+        {
+            Client cli = client as Client;
+            foreach (Caisse c in OpenedCaisses)
+            {
+                if(c.AttenteClient.Count < MAX_CLIENTS_PER_CAISSE)
+                {
+                    Console.WriteLine(c.AttenteClient.Count);
+                    cli.CaisseAttributed = c;
+                    c.AttenteClient.Add(cli);
+                    break;
+                }
+            }
+
         }
 
     }

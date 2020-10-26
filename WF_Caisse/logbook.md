@@ -19,3 +19,4 @@
   * Ajout de la gestion d'un client pour une caisse
 
 # Lundi 26 octobre 2020
+  * Ajout d'un Event pour attribuer des caisses a des clients quand ils ont fini leurs shooping

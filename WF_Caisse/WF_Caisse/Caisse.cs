@@ -1,4 +1,11 @@
-﻿using System;
+﻿/* 
+ * File : Caisse
+ * Author : Clément Christensen
+ * Date : 26.10.2020
+ * Version : 1.0
+ * Description : the Class Caisse control control a list of clients and process them
+ */
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
@@ -30,7 +37,7 @@ namespace WF_Caisse
         public PointF Position
         {
             get
-            {
+            {   // size * 2 = the size + a margin
                 return new PointF((Number * Size * 2), Properties.Settings.Default.SizeMagasin.Height - Size);
             }
         }
@@ -126,7 +133,7 @@ namespace WF_Caisse
                 default:
                     break;
             }
-            RectangleF rectangle = new RectangleF(Position, new Size(Size, Size)); //like in your code sample
+            RectangleF rectangle = new RectangleF(Position, new Size(Size, Size));
 
             using (Brush brush = new SolidBrush(color))
             {
